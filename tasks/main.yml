@@ -11,4 +11,90 @@
     - libgd2-xpm-dev
     - libapache2-mod-php5
     - php5-gd
+    - python-passlib
     - sendmail
+
+- name: Add nagcmd group
+  group:
+    name=nagcmd
+    state=present
+
+- name: Set up nagios and www-data users
+  user:
+    name="{{ item }}"
+    createhome=no
+    groups=nagcmd
+  with_items:
+    - nagios
+    - www-data
+
+- name: Unpack nagios core and plugins
+  unarchive:
+    src="{{ item }}"
+    dest="/tmp"
+  with_items:
+    - nagios-{{ nagios_version }}.tar.gz
+    - nagios-plugins-{{ nagios_plugins_version }}.tar.gz
+
+- name: Configure nagios
+  shell: ./configure --with-nagios-group=nagios --with-command-group=nagcmd --with-mail=/usr/bin/sendmail
+    chdir=/tmp/nagios-{{ nagios_version }}
+    creates=/tmp/nagios-{{ nagios_version }}/Makefile
+
+- name: Build nagios and install
+  shell: make {{ item }}
+    chdir=/tmp/nagios-{{ nagios_version }}
+  with_items:
+    - all
+    - install
+    - install-config
+    - install-commandmode
+    - install-webconf
+
+- name: Install init script
+  copy:
+    src=nagios
+    dest=/etc/init.d
+    owner=root
+    group=root
+    mode=0755
+
+- name: Add init script to the startup pipeline
+  shell: update-rc.d nagios defaults
+
+- name: Copy over the event handlers folder
+  shell: cp -R contrib/eventhandlers/ /usr/local/nagios/libexec/
+    chdir=/tmp/nagios-{{ nagios_version }}
+    creates=/usr/local/nagios/libexec/eventhandlers
+
+- name: Ensure ownership of event handlers folder
+  file:
+    path=/usr/local/nagios/libexec/eventhandlers
+    state=directory
+    owner=nagios
+    group=nagios
+
+- name: Configure nagios plugins
+  shell: ./configure --with-nagios-user=nagios --with-nagios-group=nagios
+    chdir=/tmp/nagios-plugins-{{ nagios_plugins_version }}
+    creates=/tmp/nagios-plugins-{{ nagios_plugins_version }}/Makefile
+
+- name: Build nagios plugins and install
+  shell: make {{ item }}
+    chdir=/tmp/nagios-plugins-{{ nagios_plugins_version }}
+  with_items:
+    - ""
+    - install
+
+- name: Set up default user for Web Interface Access
+  htpasswd:
+    path=/usr/local/nagios/etc/htpasswd.users
+    name=nagiosadmin
+    password="{{ nagios_web_password }}"
+  notify: restart apache
+
+- name: Start nagios service
+  service:
+    name=nagios
+    state=started
+  notify: restart apache
