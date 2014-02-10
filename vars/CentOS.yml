@@ -1,0 +1,14 @@
+---
+build_tools:
+  - gcc
+  - glibc
+  - glibc-common
+  - make
+  - perl-ExtUtils-MakeMaker
+ssl_libs: openssl-devel
+ldap_libs: openldap-devel
+mysql_libs: mysql-devel
+apache: httpd
+gd: gd
+gd_dev: gd-devel
+php: php

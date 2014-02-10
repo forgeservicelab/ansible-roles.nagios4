@@ -1,0 +1,34 @@
+---
+- name: Install nrpe init script
+  copy:
+    src="nagios-nrpe-server-{{ ansible_distribution }}"
+    dest=/etc/init.d/nagios-nrpe-server
+    owner=root
+    group=root
+    mode=0755
+
+- name: Add init script to the startup pipeline
+  shell: update-rc.d nagios-nrpe-server defaults
+  when: "ansible_distribution == 'Debian'"
+
+- name: Add init script to the startup pipeline
+  shell: "chkconfig {{ item }}"
+  with_items:
+    - '--add nagios-nrpe-server'
+    - '--level 35 nagios-nrpe-server on'
+  when: "ansible_distribution == 'CentOS'"
+
+- name: Copy over the nrpe daemon to its installed location
+  shell: cp src/nrpe /usr/local/nagios/bin/
+    chdir=/tmp/nrpe-{{ nrpe_version }}
+    creates=/usr/local/nagios/bin/nrpe
+
+- name: Set up vanilla configuration files
+  copy:
+    src=nrpe.cfg
+    dest=/usr/local/nagios/etc/
+
+- name: Start nrpe service
+  service:
+    name=nagios-nrpe-server
+    state=restarted

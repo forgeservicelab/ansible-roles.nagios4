@@ -1,0 +1,91 @@
+---
+- name: Install required packages
+  action: "{{ ansible_pkg_mgr }} {{ 'pkg' if ansible_pkg_mgr == 'apt' else 'name' }}={{ item }} state=latest"
+  with_items:
+    - "{{ apache }}"
+    - "{{ gd }}"
+    - "{{ gd_dev }}"
+    - "{{ php }}"
+    - sendmail
+
+- name: Install pip on Debian targets
+  apt:
+    pkg={{ item }}
+    state=latest
+  with_items:
+    - python-dev
+    - python-pip
+  when: "ansible_distribution == 'Debian'"
+
+- name: Install pip on CentOS targets
+  easy_install:
+    name=pip
+  when: "ansible_distribution == 'CentOS'"
+
+- name: Install python passlib
+  pip:
+    name=passlib
+
+- name: Configure nagios
+  shell: ./configure --with-nagios-group=nagios --with-command-group=nagcmd --with-mail=/usr/bin/sendmail
+    chdir=/tmp/nagios-{{ nagios_version }}
+    creates=/tmp/nagios-{{ nagios_version }}/Makefile
+
+- name: Build nagios and install
+  shell: make {{ item }}
+    chdir=/tmp/nagios-{{ nagios_version }}
+  with_items:
+    - all
+    - install
+    - install-config
+    - install-commandmode
+    - install-webconf
+
+- name: Install init script
+  copy:
+    src="nagios-{{ ansible_distribution }}"
+    dest="/etc/init.d/nagios"
+    owner=root
+    group=root
+    mode=0755
+
+- name: Add init script to the startup pipeline
+  shell: update-rc.d nagios defaults
+  when: "ansible_distribution == 'Debian'"
+
+- name: Add init script to the startup pipeline
+  shell: "chkconfig {{ item }}"
+  with_items:
+    - '--add nagios'
+    - '--level 35 nagios on'
+  when: "ansible_distribution == 'CentOS'"
+
+- name: Copy over the event handlers folder
+  shell: cp -R contrib/eventhandlers/ /usr/local/nagios/libexec/
+    chdir=/tmp/nagios-{{ nagios_version }}
+    creates=/usr/local/nagios/libexec/eventhandlers
+
+- name: Ensure ownership of event handlers folder
+  file:
+    path=/usr/local/nagios/libexec/eventhandlers
+    state=directory
+    owner=nagios
+    group=nagios
+
+- name: Copy over check_nrpe to the plugins folder
+  shell: cp src/check_nrpe /usr/local/nagios/libexec/
+    chdir=/tmp/nrpe-{{ nrpe_version }}
+    creates=/usr/local/nagios/libexec/check_nrpe
+
+- name: Set up default user for Web Interface Access
+  htpasswd:
+    path=/usr/local/nagios/etc/htpasswd.users
+    name=nagiosadmin
+    password="{{ nagios_web_password }}"
+  notify: restart apache
+
+- name: Start nagios service
+  service:
+    name=nagios
+    state=started
+  notify: restart apache

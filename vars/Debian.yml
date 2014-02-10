@@ -1,0 +1,11 @@
+---
+build_tools: build-essential
+ssl_libs: libssl-dev
+ldap_libs: libldap2-dev
+mysql_libs: libmysqlclient-dev
+apache: apache2
+gd: libgd2-xpm
+gd_dev: libgd2-xpm-dev
+php: 
+  - libapache2-mod-php5
+  - php5-gd
