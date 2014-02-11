@@ -46,6 +46,14 @@
     - ""
     - install
 
+- name: Install extra check_mem plugin
+  copy:
+    src=nagios-plugins/check_mem/check_mem.pl
+    dest=/usr/local/nagios/libexec/check_mem
+    owner=nagios
+    group=nagios
+    mode=0755
+
 - name: Find the ssl library for nrpe configuration
   shell: find / -name libssl.so
   register: libssl

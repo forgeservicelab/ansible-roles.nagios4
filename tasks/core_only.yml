@@ -77,6 +77,13 @@
     chdir=/tmp/nrpe-{{ nrpe_version }}
     creates=/usr/local/nagios/libexec/check_nrpe
 
+- name: Ensure permissions on check_nrpe plugin
+  file:
+    path=/usr/local/nagios/libexec/check_nrpe
+    owner=nagios
+    group=nagios
+    mode=0755
+
 - name: Set up default user for Web Interface Access
   htpasswd:
     path=/usr/local/nagios/etc/htpasswd.users
