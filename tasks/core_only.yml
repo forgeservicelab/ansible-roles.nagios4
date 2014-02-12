@@ -84,6 +84,16 @@
     group=nagios
     mode=0755
 
+- name: Create folder for deployment specific configuration files
+  file:
+    path=/usr/local/nagios/etc/objects-extra
+    state=directory
+
+- name: All configuration files on the objects-extra folder should be honored
+  lineinfile:
+    line=cfg_dir=/usr/local/nagios/etc/objects-extra
+    dest=/usr/local/nagios/etc/nagios.cfg
+
 - name: Set up default user for Web Interface Access
   htpasswd:
     path=/usr/local/nagios/etc/htpasswd.users
