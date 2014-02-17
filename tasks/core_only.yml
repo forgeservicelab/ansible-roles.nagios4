@@ -88,6 +88,8 @@
   file:
     path=/usr/local/nagios/etc/objects-extra
     state=directory
+    owner=nagios
+    group=nagios
 
 - name: All configuration files on the objects-extra folder should be honored
   lineinfile:
