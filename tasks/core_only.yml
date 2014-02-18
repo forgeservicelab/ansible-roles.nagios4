@@ -72,6 +72,11 @@
     owner=nagios
     group=nagios
 
+- name: Remove swap check from localhost config file
+  replace:
+    dest=/usr/local/nagios/etc/objects/localhost.cfg
+    regexp="define service.*(?:\n.*){3}Swap.*(?:\n.*){2}}\n"
+
 - name: Copy over check_nrpe to the plugins folder
   shell: cp src/check_nrpe /usr/local/nagios/libexec/
     chdir=/tmp/nrpe-{{ nrpe_version }}
