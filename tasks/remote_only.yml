@@ -27,6 +27,9 @@
   copy:
     src=nrpe.cfg
     dest=/usr/local/nagios/etc/
+    owner=nagios
+    group=nagios
+    mode=0664
 
 - name: Start nrpe service
   service:
