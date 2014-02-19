@@ -82,6 +82,14 @@
     chdir=/tmp/nrpe-{{ nrpe_version }}
     creates=/usr/local/nagios/libexec/check_nrpe
 
+- name: Upload chec_cas plugin
+  copy:
+    src=check_cas
+    dest=/usr/local/nagios/libexec/check_cas
+    owner=nagios
+    group=nagios
+    mode=0755
+
 - name: Ensure permissions on check_nrpe plugin
   file:
     path=/usr/local/nagios/libexec/check_nrpe
