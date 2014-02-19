@@ -22,9 +22,12 @@
     name=pip
   when: "ansible_distribution == 'CentOS'"
 
-- name: Install python passlib
+- name: Install python packages
   pip:
-    name=passlib
+    name={{ item }}
+  with_items:
+    - passlib
+    - mechanize
 
 - name: Configure nagios
   shell: ./configure --with-nagios-group=nagios --with-command-group=nagcmd --with-mail=/usr/bin/sendmail
