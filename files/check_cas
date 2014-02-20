@@ -115,15 +115,15 @@ if __name__ == '__main__':
         if (args.critical):
             if (timed_response['time'] > float(args.critical)):
                 print 'CRITICAL - Response time critical threshold exceeded | time=%ss;%s;%s;0' % (timed_response['time'],
-                                                        args.warning + ':' if args.warning else '',
-                                                        args.critical + ':' if args.critical else '')
+                                                        float(args.warning) if args.warning else '',
+                                                        float(args.critical) if args.critical else '')
                 exit(2)
 
         if (args.warning):
             if (timed_response['time'] > float(args.warning)):
                 print 'WARNING - Response time warning threshold exceeded | time=%ss;%s;%s;0' % (timed_response['time'],
-                                                        args.warning + ':' if args.warning else '',
-                                                        args.critical + ':' if args.critical else '')
+                                                        float(args.warning) if args.warning else '',
+                                                        float(args.critical) if args.critical else '')
                 exit(1)
 
         if (args.header_string):
@@ -140,71 +140,71 @@ if __name__ == '__main__':
                         found = True
             if not found:
                 print 'CRITICAL - Requested string not found in headers | time=%ss;%s;%s;0' % (timed_response['time'],
-                                                        args.warning + ':' if args.warning else '',
-                                                        args.critical + ':' if args.critical else '')
+                                                        float(args.warning) if args.warning else '',
+                                                        float(args.critical) if args.critical else '')
                 exit(2)
 
         if (args.expect):
             if (args.expect not in timed_response['response'].info().getheader('status')):
                 print 'CRITICAL - Request returned wrong status code: %s | time=%ss;%s;%s;0' % (timed_response['response'].info().getheader('status'),
 							timed_response['time'],
-                                                        args.warning + ':' if args.warning else '',
-                                                        args.critical + ':' if args.critical else '')
+                                                        float(args.warning) if args.warning else '',
+                                                        float(args.critical) if args.critical else '')
                 exit(2)
 
         if (args.string):
             if (args.string not in timed_response['response'].read()):
                 print 'CRITICAL - Requested string \"%s\" was not found on the page | time=%ss;%s;%s;0' % (args.string,
                                                         timed_response['time'],
-                                                        args.warning + ':' if args.warning else '',
-                                                        args.critical + ':' if args.critical else '')
+                                                        float(args.warning) if args.warning else '',
+                                                        float(args.critical) if args.critical else '')
                 exit(2)
 
         if (args.regex):
             if not (re.search(args.regex, timed_response['response'].read())):
                 print 'CRITICAL - Requested regex \"%s\" was not found on the page | time=%ss;%s;%s;0' % (args.regex,
                                                         timed_response['time'],
-                                                        args.warning + ':' if args.warning else '',
-                                                        args.critical + ':' if args.critical else '')
+                                                        float(args.warning) if args.warning else '',
+                                                        float(args.critical) if args.critical else '')
                 exit(2)
 
         if (args.eregi):
             if not (re.search(args.eregi, timed_response['response'].read(), re.I)):
                 print 'CRITICAL - Requested regex \"%s\" was not found on the page | time=%ss;%s;%s;0' % (args.eregi,
                                                         timed_response['time'],
-                                                        args.warning + ':' if args.warning else '',
-                                                        args.critical + ':' if args.critical else '')
+                                                        float(args.warning) if args.warning else '',
+                                                        float(args.critical) if args.critical else '')
                 exit(2)
 
         if (args.expect):
             print 'OK - Request returned expected status code: %s | time=%ss;%s;%s;0' % (args.expect,
                                                         timed_response['time'],
-                                                        args.warning + ':' if args.warning else '',
-                                                        args.critical + ':' if args.critical else '')
+                                                        float(args.warning) if args.warning else '',
+                                                        float(args.critical) if args.critical else '')
             exit(0)
 
         if (args.header_string):
             print 'OK - Requested string found in headers | time=%ss;%s;%s;0' % (timed_response['time'],
-                                                        args.warning + ':' if args.warning else '',
-                                                        args.critical + ':' if args.critical else '')
+                                                        float(args.warning) if args.warning else '',
+                                                        float(args.critical) if args.critical else '')
             exit(0)
 
         if (args.string):
             print 'OK - Requested string found in page | time=%ss;%s;%s;0' % (timed_response['time'],
-                                                        args.warning + ':' if args.warning else '',
-                                                        args.critical + ':' if args.critical else '')
+                                                        float(args.warning) if args.warning else '',
+                                                        float(args.critical) if args.critical else '')
             exit(0)
 
         if (args.regex or args.eregi):
             print 'OK - Requested regular expression found in page | time=%ss;%s;%s;0' % (timed_response['time'],
-                                                        args.warning + ':' if args.warning else '',
-                                                        args.critical + ':' if args.critical else '')
+                                                        float(args.warning) if args.warning else '',
+                                                        float(args.critical) if args.critical else '')
             exit(0)
 
         print 'OK - Response: %s | time=%ss;%s;%s;0' % (timed_response['response'].info().getheader('status'),
 							timed_response['time'],
-							args.warning + ':' if args.warning else '',
-							args.critical + ':' if args.critical else '')
+							float(args.warning) if args.warning else '',
+							float(args.critical) if args.critical else '')
         exit(0)
 
     except HTTPError as httperr:
