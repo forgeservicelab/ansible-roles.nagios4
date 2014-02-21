@@ -33,6 +33,7 @@
     - nagios-{{ nagios_version }}.tar.gz
     - nagios-plugins-{{ nagios_plugins_version }}.tar.gz
     - nrpe-{{ nrpe_version }}.tar.gz
+    - nagiosgraph-{{ nagiosgraph_version }}.tar.gz
 
 - name: Configure nagios plugins
   shell: ./configure --with-nagios-user=nagios --with-nagios-group=nagios --enable-perl-modules

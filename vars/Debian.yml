@@ -9,3 +9,7 @@ gd_dev: libgd2-xpm-dev
 php: 
   - libapache2-mod-php5
   - php5-gd
+rrdtools:
+  - rrdtool
+  - librrds-perl
+gd_perl: libgd-gd2-perl
