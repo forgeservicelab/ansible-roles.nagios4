@@ -18,6 +18,14 @@
     - '--level 35 nagios-nrpe-server on'
   when: "ansible_distribution == 'CentOS'"
 
+- name: Ensure the nagios bin and etc directories exists
+  file:
+    path=/usr/local/nagios/{{ item }}
+    state=directory
+  with_items:
+    - bin
+    - etc
+
 - name: Copy over the nrpe daemon to its installed location
   shell: cp src/nrpe /usr/local/nagios/bin/
     chdir=/tmp/nrpe-{{ nrpe_version }}

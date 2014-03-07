@@ -36,12 +36,20 @@
     chdir=/tmp/nagios-{{ nagios_version }}
     creates=/tmp/nagios-{{ nagios_version }}/Makefile
 
-- name: Remove Alt Text on service extra actions, it'll interfere on mouseovers.
+- name: Remove Alt Text on service extra actions, it will interfere on mouseovers.
   lineinfile:
     dest=/tmp/nagios-{{ nagios_version }}/cgi/status.c
     regexp="(.*?)TITLE='%s'(.*?)\"Perform Extra Service Actions\", (.*)"
     backrefs=yes
     line="\1\2\3"
+    state=present
+
+- name: Remove Alt Text on service extra info actions.
+  lineinfile:
+    dest=/tmp/nagios-{{ nagios_version }}/cgi/extinfo.c
+    regexp="(.*?) title='Perform.+'(.*)"
+    backrefs=yes
+    line="\1\2"
     state=present
 
 - name: Build nagios and install
@@ -129,7 +137,7 @@
     mode=0744
 
 - name: Install nagiosgraph
-  shell: ./nagiosgraph_unatended.sh apache2
+  shell: ./nagiosgraph_unatended.sh {{ 'apache2' if ansible_distribution == 'Debian' else 'httpd' }}
     chdir=/tmp/nagiosgraph-{{ nagiosgraph_version }}
 
 - name: Include nagiosgraph JavaScript on nagios headers
@@ -151,12 +159,6 @@
     backrefs=yes
     line="\1\n  <ul>\n    <li><a href=\"<?php echo \$cfg[\"cgi_base_url\"];?>/show.cgi\" target=\"<?php echo \$link_target;?>\">Graphs</a></li>\n    <li><a href=\"<?php echo \$cfg[\"cgi_base_url\"];?>/showhost.cgi\" target=\"<?php echo \$link_target;?>\">Graphs by Host</a></li>\n    <li><a href=\"<?php echo \$cfg[\"cgi_base_url\"];?>/showservice.cgi\" target=\"<?php echo \$link_target;?>\">Graphs by Service</a></li>\n  </ul>\n\2"
     state=present
-
-- name: Add graph mouseovers to localhost
-  replace:
-    dest=/usr/local/nagios/etc/objects/localhost.cfg
-    regexp='(define service{)(?!\n\s*?action)'
-    replace="\1\n\taction_url\t\t/nagios/cgi-bin/show.cgi?host=$HOSTNAME$&service=$SERVICEDESC$' onMouseOver='showGraphPopup(this)' onMouseOut='hideGraphPopup()' rel='/nagios/cgi-bin/showgraph.cgi?host=$HOSTNAME$&service=$SERVICEDESC$"
 
 - name: Set up default user for Web Interface Access
   htpasswd:
