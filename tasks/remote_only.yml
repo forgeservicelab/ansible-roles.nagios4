@@ -39,6 +39,14 @@
     group=nagios
     mode=0664
 
+- name: Upload check_load_extra plugin
+  copy:
+    src=check_load_extra
+    dest=/usr/local/nagios/libexec/check_load_extra
+    owner=nagios
+    group=nagios
+    mode=0755
+
 - name: Start nrpe service
   service:
     name=nagios-nrpe-server
