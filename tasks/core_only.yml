@@ -30,6 +30,7 @@
   with_items:
     - passlib
     - mechanize
+    - sleekxmpp
 
 - name: Configure nagios
   shell: ./configure --with-nagios-group=nagios --with-command-group=nagcmd --with-mail=/usr/bin/sendmail
@@ -61,6 +62,13 @@
     - install-config
     - install-commandmode
     - install-webconf
+
+- name: Disable notifications by default
+  lineinfile:
+    dest=/usr/local/nagios/etc/nagios.cfg
+    regexp="^enable_notifications"
+    line="enable_notifications=0"
+    state=present
 
 - name: Install init script
   copy:
