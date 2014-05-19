@@ -1,11 +1,11 @@
 ---
 - name: Install nrpe init script
   copy:
-    src="nagios-nrpe-server-{{ ansible_distribution }}"
-    dest=/etc/init.d/nagios-nrpe-server
-    owner=root
-    group=root
-    mode=0755
+    src: nagios-nrpe-server-{{ ansible_distribution }}
+    dest: /etc/init.d/nagios-nrpe-server
+    owner: root
+    group: root
+    mode: 0755
 
 - name: Add init script to the startup pipeline
   shell: update-rc.d nagios-nrpe-server defaults
@@ -14,14 +14,14 @@
 - name: Add init script to the startup pipeline
   shell: "chkconfig {{ item }}"
   with_items:
-    - '--add nagios-nrpe-server'
-    - '--level 35 nagios-nrpe-server on'
+    - --add nagios-nrpe-server
+    - --level 35 nagios-nrpe-server on
   when: "ansible_distribution == 'CentOS'"
 
 - name: Ensure the nagios bin and etc directories exists
   file:
-    path=/usr/local/nagios/{{ item }}
-    state=directory
+    path: /usr/local/nagios/{{ item }}
+    state: directory
   with_items:
     - bin
     - etc
@@ -33,21 +33,21 @@
 
 - name: Set up vanilla configuration files
   copy:
-    src=nrpe.cfg
-    dest=/usr/local/nagios/etc/
-    owner=nagios
-    group=nagios
-    mode=0664
+    src: nrpe.cfg
+    dest: /usr/local/nagios/etc/
+    owner: nagios
+    group: nagios
+    mode: 0664
 
 - name: Upload check_load_extra plugin
   copy:
-    src=check_load_extra
-    dest=/usr/local/nagios/libexec/check_load_extra
-    owner=nagios
-    group=nagios
-    mode=0755
+    src: check_load_extra
+    dest: /usr/local/nagios/libexec/check_load_extra
+    owner: nagios
+    group: nagios
+    mode: 0755
 
 - name: Start nrpe service
   service:
-    name=nagios-nrpe-server
-    state=restarted
+    name: nagios-nrpe-server
+    state: restarted

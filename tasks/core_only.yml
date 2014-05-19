@@ -12,8 +12,8 @@
 
 - name: Install pip on Debian targets
   apt:
-    pkg={{ item }}
-    state=latest
+    pkg: "{{ item }}"
+    state: latest
   with_items:
     - python-dev
     - python-pip
@@ -21,16 +21,33 @@
 
 - name: Install pip on CentOS targets
   easy_install:
-    name=pip
+    name: pip
   when: "ansible_distribution == 'CentOS'"
 
 - name: Install python packages
   pip:
-    name={{ item }}
+    name: "{{ item }}"
   with_items:
     - passlib
     - mechanize
     - sleekxmpp
+
+- name: Get Nagios core
+  get_url:
+    url: "{{ item.base }}{{ item.file }}"
+    dest: /tmp/{{ item.file }}
+  with_items:
+    - { base: "http://prdownloads.sourceforge.net/sourceforge/nagios/", file: "nagios-{{ nagios_version }}.tar.gz" }
+    - { base: "http://optimate.dl.sourceforge.net/project/nagiosgraph/nagiosgraph/{{ nagiosgraph_version }}/", file: "nagiosgraph-{{ nagiosgraph_version }}.tar.gz" }
+
+- name: Unpack Nagios
+  unarchive:
+    src: /tmp/{{ item }}
+    dest: /tmp/
+    copy: no
+  with_items:
+    - nagios-{{ nagios_version }}.tar.gz
+    - nagiosgraph-{{ nagiosgraph_version }}.tar.gz
 
 - name: Configure nagios
   shell: ./configure --with-nagios-group=nagios --with-command-group=nagcmd --with-mail=/usr/bin/sendmail
@@ -39,19 +56,19 @@
 
 - name: Remove Alt Text on service extra actions, it will interfere on mouseovers.
   lineinfile:
-    dest=/tmp/nagios-{{ nagios_version }}/cgi/status.c
-    regexp="(.*?)TITLE='%s'(.*?)\"Perform Extra Service Actions\", (.*)"
-    backrefs=yes
-    line="\1\2\3"
-    state=present
+    dest: /tmp/nagios-{{ nagios_version }}/cgi/status.c
+    regexp: (.*?)TITLE='%s'(.*?)\"Perform Extra Service Actions\", (.*)
+    backrefs: yes
+    line: \1\2\3
+    state: present
 
 - name: Remove Alt Text on service extra info actions.
   lineinfile:
-    dest=/tmp/nagios-{{ nagios_version }}/cgi/extinfo.c
-    regexp="(.*?) title='Perform.+'(.*)"
-    backrefs=yes
-    line="\1\2"
-    state=present
+    dest: /tmp/nagios-{{ nagios_version }}/cgi/extinfo.c
+    regexp: (.*?) title='Perform.+'(.*)
+    backrefs: yes
+    line: \1\2
+    state: present
 
 - name: Build nagios and install
   shell: make {{ item }}
@@ -65,18 +82,18 @@
 
 - name: Disable notifications by default
   lineinfile:
-    dest=/usr/local/nagios/etc/nagios.cfg
-    regexp="^enable_notifications"
-    line="enable_notifications=0"
-    state=present
+    dest: /usr/local/nagios/etc/nagios.cfg
+    regexp: ^enable_notifications
+    line: enable_notifications=0
+    state: present
 
 - name: Install init script
   copy:
-    src="nagios-{{ ansible_distribution }}"
-    dest="/etc/init.d/nagios"
-    owner=root
-    group=root
-    mode=0755
+    src: nagios-{{ ansible_distribution }}
+    dest: /etc/init.d/nagios
+    owner: root
+    group: root
+    mode: 0755
 
 - name: Add init script to the startup pipeline
   shell: update-rc.d nagios defaults
@@ -96,15 +113,15 @@
 
 - name: Ensure ownership of event handlers folder
   file:
-    path=/usr/local/nagios/libexec/eventhandlers
-    state=directory
-    owner=nagios
-    group=nagios
+    path: /usr/local/nagios/libexec/eventhandlers
+    state: directory
+    owner: nagios
+    group: nagios
 
 - name: Remove swap check from localhost config file
   replace:
-    dest=/usr/local/nagios/etc/objects/localhost.cfg
-    regexp="define service.*(?:\n.*){3}Swap.*(?:\n.*){2}}\n"
+    dest: /usr/local/nagios/etc/objects/localhost.cfg
+    regexp: define service.*(?:\n.*){3}Swap.*(?:\n.*){2}}\n
 
 - name: Copy over check_nrpe to the plugins folder
   shell: cp src/check_nrpe /usr/local/nagios/libexec/
@@ -113,36 +130,36 @@
 
 - name: Upload check_cas plugin
   copy:
-    src=check_cas
-    dest=/usr/local/nagios/libexec/check_cas
-    owner=nagios
-    group=nagios
-    mode=0755
+    src: check_cas
+    dest: /usr/local/nagios/libexec/check_cas
+    owner: nagios
+    group: nagios
+    mode: 0755
 
 - name: Ensure permissions on check_nrpe plugin
   file:
-    path=/usr/local/nagios/libexec/check_nrpe
-    owner=nagios
-    group=nagios
-    mode=0755
+    path: /usr/local/nagios/libexec/check_nrpe
+    owner: nagios
+    group: nagios
+    mode: 0755
 
 - name: Create folder for deployment specific configuration files
   file:
-    path=/usr/local/nagios/etc/objects-extra
-    state=directory
-    owner=nagios
-    group=nagios
+    path: /usr/local/nagios/etc/objects-extra
+    state: directory
+    owner: nagios
+    group: nagios
 
 - name: All configuration files on the objects-extra folder should be honored
   lineinfile:
-    line=cfg_dir=/usr/local/nagios/etc/objects-extra
-    dest=/usr/local/nagios/etc/nagios.cfg
+    line: cfg_dir=/usr/local/nagios/etc/objects-extra
+    dest: /usr/local/nagios/etc/nagios.cfg
 
 - name: Upload unatended installation script
   copy:
-    src=nagiosgraph_unatended.sh
-    dest=/tmp/nagiosgraph-{{ nagiosgraph_version }}
-    mode=0744
+    src: nagiosgraph_unatended.sh
+    dest: /tmp/nagiosgraph-{{ nagiosgraph_version }}
+    mode: 0744
 
 - name: Install nagiosgraph
   shell: ./nagiosgraph_unatended.sh {{ 'apache2' if ansible_distribution == 'Debian' else 'httpd' }}
@@ -154,29 +171,29 @@
 
 - name: modify nagiosgraph JavaScript file path
   lineinfile:
-    dest=/usr/local/nagios/share/ssi/common-header.ssi
-    regexp=(.*?)nagiosgraph/(.*)
-    backrefs=yes
-    line='\1nagios/\2'
-    state=present
+    dest: /usr/local/nagios/share/ssi/common-header.ssi
+    regexp: (.*?)nagiosgraph/(.*)
+    backrefs: yes
+    line: \1nagios/\2
+    state: present
 
 - name: modify side.php to show links to graphs
   lineinfile:
-    dest=/usr/local/nagios/share/side.php
-    regexp=(.*Trends</a>)(.*)
-    backrefs=yes
-    line="\1\n  <ul>\n    <li><a href=\"<?php echo \$cfg[\"cgi_base_url\"];?>/show.cgi\" target=\"<?php echo \$link_target;?>\">Graphs</a></li>\n    <li><a href=\"<?php echo \$cfg[\"cgi_base_url\"];?>/showhost.cgi\" target=\"<?php echo \$link_target;?>\">Graphs by Host</a></li>\n    <li><a href=\"<?php echo \$cfg[\"cgi_base_url\"];?>/showservice.cgi\" target=\"<?php echo \$link_target;?>\">Graphs by Service</a></li>\n  </ul>\n\2"
-    state=present
+    dest: /usr/local/nagios/share/side.php
+    regexp: (.*Trends</a>)(.*)
+    backrefs: yes
+    line: \1\n  <ul>\n    <li><a href=\"<?php echo \$cfg[\"cgi_base_url\"];?>/show.cgi\" target=\"<?php echo \$link_target;?>\">Graphs</a></li>\n    <li><a href=\"<?php echo \$cfg[\"cgi_base_url\"];?>/showhost.cgi\" target=\"<?php echo \$link_target;?>\">Graphs by Host</a></li>\n    <li><a href=\"<?php echo \$cfg[\"cgi_base_url\"];?>/showservice.cgi\" target=\"<?php echo \$link_target;?>\">Graphs by Service</a></li>\n  </ul>\n\2
+    state: present
 
 - name: Set up default user for Web Interface Access
   htpasswd:
-    path=/usr/local/nagios/etc/htpasswd.users
-    name=nagiosadmin
-    password="{{ nagios_web_password }}"
+    path: /usr/local/nagios/etc/htpasswd.users
+    name: nagiosadmin
+    password: "{{ nagios_web_password }}"
   notify: restart apache
 
 - name: Start nagios service
   service:
-    name=nagios
-    state=started
+    name: nagios
+    state: started
   notify: restart apache

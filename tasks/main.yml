@@ -13,27 +13,34 @@
 
 - name: Add nagcmd group
   group:
-    name=nagcmd
-    state=present
+    name: nagcmd
+    state: present
 
 - name: Set up nagios and www-data users
   user:
-    name="{{ item }}"
-    createhome=no
-    groups=nagcmd
+    name: "{{ item }}"
+    createhome: no
+    groups: nagcmd
   with_items:
     - nagios
     - "{{ 'www-data' if ansible_distribution == 'Debian' else 'apache' }}"
 
+- name: Get Nagios plugins
+  get_url:
+    url: "{{ item.base }}{{ item.file }}"
+    dest: /tmp/{{ item.file }}
+  with_items:
+    - { base: "https://www.nagios-plugins.org/download/", file: "nagios-plugins-{{ nagios_plugins_version }}.tar.gz" }
+    - { base: "http://prdownloads.sourceforge.net/sourceforge/nagios/", file: "nrpe-{{ nrpe_version }}.tar.gz" }
+
 - name: Unpack nagios core and plugins
   unarchive:
-    src="{{ item }}"
-    dest="/tmp"
+    src: /tmp/{{ item }}
+    dest: /tmp/
+    copy: no
   with_items:
-    - nagios-{{ nagios_version }}.tar.gz
     - nagios-plugins-{{ nagios_plugins_version }}.tar.gz
     - nrpe-{{ nrpe_version }}.tar.gz
-    - nagiosgraph-{{ nagiosgraph_version }}.tar.gz
 
 - name: Configure nagios plugins
   shell: ./configure --with-nagios-user=nagios --with-nagios-group=nagios --enable-perl-modules
@@ -49,11 +56,11 @@
 
 - name: Install extra check_mem plugin
   copy:
-    src=nagios-plugins/check_mem/check_mem.pl
-    dest=/usr/local/nagios/libexec/check_mem
-    owner=nagios
-    group=nagios
-    mode=0755
+    src: nagios-plugins/check_mem/check_mem.pl
+    dest: /usr/local/nagios/libexec/check_mem
+    owner: nagios
+    group: nagios
+    mode: 0755
 
 - name: Find the ssl library for nrpe configuration
   shell: find / -name libssl.so
