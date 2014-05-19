@@ -2,6 +2,7 @@ Nagios 4
 ========
 
 Builds and installs nagios core from source.
+Needs ansible version >= 1.6
 
 Role Variables
 --------------
