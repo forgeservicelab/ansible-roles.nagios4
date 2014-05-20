@@ -83,8 +83,8 @@
 - name: Disable notifications by default
   lineinfile:
     dest: /usr/local/nagios/etc/nagios.cfg
-    regexp: ^enable_notifications
-    line: enable_notifications=0
+    regexp: "^enable_notifications"
+    line: "enable_notifications=0"
     state: present
 
 - name: Install init script
@@ -182,7 +182,7 @@
     dest: /usr/local/nagios/share/side.php
     regexp: (.*Trends</a>)(.*)
     backrefs: yes
-    line: \1\n  <ul>\n    <li><a href=\"<?php echo \$cfg[\"cgi_base_url\"];?>/show.cgi\" target=\"<?php echo \$link_target;?>\">Graphs</a></li>\n    <li><a href=\"<?php echo \$cfg[\"cgi_base_url\"];?>/showhost.cgi\" target=\"<?php echo \$link_target;?>\">Graphs by Host</a></li>\n    <li><a href=\"<?php echo \$cfg[\"cgi_base_url\"];?>/showservice.cgi\" target=\"<?php echo \$link_target;?>\">Graphs by Service</a></li>\n  </ul>\n\2
+    line: \1\n  <ul>\n    <li><a href="<?php echo $cfg["cgi_base_url"];?>/show.cgi" target="<?php echo $link_target;?>">Graphs</a></li>\n    <li><a href="<?php echo $cfg["cgi_base_url"];?>/showhost.cgi" target="<?php echo $link_target;?>">Graphs by Host</a></li>\n    <li><a href="<?php echo $cfg["cgi_base_url"];?>/showservice.cgi" target="<?php echo $link_target;?>">Graphs by Service</a></li>\n  </ul>\n\2
     state: present
 
 - name: Set up default user for Web Interface Access
