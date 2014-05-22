@@ -17,12 +17,12 @@
   with_items:
     - python-dev
     - python-pip
-  when: "ansible_distribution == 'Debian'"
+  when: "ansible_os_family == 'Debian'"
 
 - name: Install pip on CentOS targets
   easy_install:
     name: pip
-  when: "ansible_distribution == 'CentOS'"
+  when: "ansible_os_family == 'RedHat'"
 
 - name: Install python packages
   pip:
@@ -89,7 +89,7 @@
 
 - name: Install init script
   copy:
-    src: nagios-{{ ansible_distribution }}
+    src: nagios-{{ ansible_os_family }}
     dest: /etc/init.d/nagios
     owner: root
     group: root
@@ -97,14 +97,14 @@
 
 - name: Add init script to the startup pipeline
   shell: update-rc.d nagios defaults
-  when: "ansible_distribution == 'Debian'"
+  when: "ansible_os_family == 'Debian'"
 
 - name: Add init script to the startup pipeline
   shell: "chkconfig {{ item }}"
   with_items:
     - '--add nagios'
     - '--level 35 nagios on'
-  when: "ansible_distribution == 'CentOS'"
+  when: "ansible_os_family == 'RedHat'"
 
 - name: Copy over the event handlers folder
   shell: cp -R contrib/eventhandlers/ /usr/local/nagios/libexec/
@@ -162,7 +162,7 @@
     mode: 0744
 
 - name: Install nagiosgraph
-  shell: ./nagiosgraph_unatended.sh {{ 'apache2' if ansible_distribution == 'Debian' else 'httpd' }}
+  shell: ./nagiosgraph_unatended.sh {{ 'apache2' if ansible_os_family == 'Debian' else 'httpd' }}
     chdir=/tmp/nagiosgraph-{{ nagiosgraph_version }}
 
 - name: Include nagiosgraph JavaScript on nagios headers

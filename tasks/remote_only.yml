@@ -1,7 +1,7 @@
 ---
 - name: Install nrpe init script
   copy:
-    src: nagios-nrpe-server-{{ ansible_distribution }}
+    src: nagios-nrpe-server-{{ ansible_os_family }}
     dest: /etc/init.d/nagios-nrpe-server
     owner: root
     group: root
@@ -9,14 +9,14 @@
 
 - name: Add init script to the startup pipeline
   shell: update-rc.d nagios-nrpe-server defaults
-  when: "ansible_distribution == 'Debian'"
+  when: "ansible_os_family == 'Debian'"
 
 - name: Add init script to the startup pipeline
   shell: "chkconfig {{ item }}"
   with_items:
     - --add nagios-nrpe-server
     - --level 35 nagios-nrpe-server on
-  when: "ansible_distribution == 'CentOS'"
+  when: "ansible_os_family == 'RedHat'"
 
 - name: Ensure the nagios bin and etc directories exists
   file:

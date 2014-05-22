@@ -1,6 +1,6 @@
 ---
 - name: Load distribution specifics
-  include_vars: '../vars/{{ ansible_distribution }}.yml'
+  include_vars: '../vars/{{ ansible_os_family }}.yml'
 
 # tasks file for nagios4
 - name: Install required packages
@@ -23,7 +23,7 @@
     groups: nagcmd
   with_items:
     - nagios
-    - "{{ 'www-data' if ansible_distribution == 'Debian' else 'apache' }}"
+    - "{{ 'www-data' if ansible_os_family == 'Debian' else 'apache' }}"
 
 - name: Get Nagios plugins
   get_url:
