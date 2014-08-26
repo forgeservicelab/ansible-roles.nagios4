@@ -10,6 +10,7 @@
     - "{{ ssl_libs }}"
     - "{{ ldap_libs }}"
     - "{{ mysql_libs }}"
+    - python-psycopg2
 
 - name: Add nagcmd group
   group:
@@ -61,6 +62,17 @@
     owner: nagios
     group: nagios
     mode: 0755
+
+- name: Upload check_cas plugin
+  copy:
+    src: "{{ item }}"
+    dest: "/usr/local/nagios/libexec/{{ item }}"
+    owner: nagios
+    group: nagios
+    mode: 0755
+  with_items:
+    - check_postgresql
+    - docopt.py
 
 - name: Find the ssl library for nrpe configuration
   shell: find / -name libssl.so
