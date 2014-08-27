@@ -26,6 +26,12 @@
     - nagios
     - "{{ 'www-data' if ansible_os_family == 'Debian' else 'apache' }}"
 
+- name: Allow nagios to run python as postgres
+  lineinfile:
+    dest: /etc/sudoers
+    line: 'nagios ALL=(postgres) NOPASSWD:/usr/bin/python'
+    validate: 'visudo -cf %s'
+
 - name: Get Nagios plugins
   get_url:
     url: "{{ item.base }}{{ item.file }}"
@@ -34,7 +40,7 @@
     - { base: "https://www.nagios-plugins.org/download/", file: "nagios-plugins-{{ nagios_plugins_version }}.tar.gz" }
     - { base: "http://prdownloads.sourceforge.net/sourceforge/nagios/", file: "nrpe-{{ nrpe_version }}.tar.gz" }
 
-- name: Unpack nagios core and plugins
+- name: Unpack nagios nrpe and plugins
   unarchive:
     src: /tmp/{{ item }}
     dest: /tmp/
@@ -63,7 +69,7 @@
     group: nagios
     mode: 0755
 
-- name: Upload check_cas plugin
+- name: Upload check_postgresql plugin
   copy:
     src: "{{ item }}"
     dest: "/usr/local/nagios/libexec/{{ item }}"
@@ -72,6 +78,7 @@
     mode: 0755
   with_items:
     - check_postgresql
+    - check_postgresql.py
     - docopt.py
 
 - name: Find the ssl library for nrpe configuration

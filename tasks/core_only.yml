@@ -49,6 +49,16 @@
     - nagios-{{ nagios_version }}.tar.gz
     - nagiosgraph-{{ nagiosgraph_version }}.tar.gz
 
+- name: tweak nagios localhost configuration file.
+  replace:
+    dest: /tmp/nagios-{{ nagios_version }}/sample-config/template-object/localhost.cfg.in
+    regexp: "{{ item.regexp }}"
+    replace: "{{ item.line }}"
+  with_items:
+    - { regexp: 'linux-servers', line: 'others' }
+    - { regexp: 'Linux Servers', line: 'Other Servers' }
+    - { regexp: 'localhost', line: 'nagios' }
+
 - name: Configure nagios
   shell: ./configure --with-nagios-group=nagios --with-command-group=nagcmd --with-mail=/usr/bin/sendmail
     chdir=/tmp/nagios-{{ nagios_version }}
@@ -69,16 +79,6 @@
     backrefs: yes
     line: \1\2
     state: present
-
-- name: tweak nagios localhost configuration file.
-  replace:
-    dest: /tmp/nagios-{{ nagios_version }}/sample-config/template-object/localhost.cfg.in
-    regexp: "{{ item.regexp }}"
-    replace: "{{ item.line }}"
-  with_items:
-    - { regexp: 'linux-servers', line: 'others' }
-    - { regexp: 'Linux Servers', line: 'Other Servers' }
-    - { regexp: 'localhost', line: 'nagios' }
 
 - name: Build nagios and install
   shell: make {{ item }}
