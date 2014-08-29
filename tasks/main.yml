@@ -79,6 +79,7 @@
   with_items:
     - check_postgresql
     - check_postgresql.py
+    - check_openstack.py
     - docopt.py
 
 - name: Find the ssl library for nrpe configuration

@@ -5,6 +5,8 @@ build_tools:
   - glibc-common
   - make
   - perl-ExtUtils-MakeMaker
+  - libxml2-devel
+  - libxslt-devel
 ssl_libs: openssl-devel
 ldap_libs: openldap-devel
 mysql_libs: mysql-devel

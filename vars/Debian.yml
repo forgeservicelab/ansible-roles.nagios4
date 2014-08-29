@@ -1,5 +1,8 @@
 ---
-build_tools: build-essential
+build_tools:
+  - build-essential
+  - libxml2-dev
+  - libxslt1-dev
 ssl_libs: libssl-dev
 ldap_libs: libldap2-dev
 mysql_libs: libmysqlclient-dev

@@ -31,6 +31,8 @@
     - passlib
     - mechanize
     - sleekxmpp
+    - python-novaclient
+    - python-neutronclient
 
 - name: Get Nagios core
   get_url:
@@ -58,6 +60,13 @@
     - { regexp: 'linux-servers', line: 'others' }
     - { regexp: 'Linux Servers', line: 'Other Servers' }
     - { regexp: 'localhost', line: 'nagios' }
+
+- name: Add nagios logo to localhost
+  lineinfile:
+    dest: /tmp/nagios-{{ nagios_version }}/sample-config/template-object/localhost.cfg.in
+    insertafter: .*127\.0\.0\.1
+    line: "\ticon_image\t\tNagios.png\n\tstatusmap_image\t\tNagios.gd2\n\t2d_coords\t\t327.5,20.0"
+    state: present
 
 - name: Configure nagios
   shell: ./configure --with-nagios-group=nagios --with-command-group=nagcmd --with-mail=/usr/bin/sendmail
@@ -95,6 +104,13 @@
     dest: /usr/local/nagios/etc/nagios.cfg
     regexp: "^enable_notifications"
     line: "enable_notifications=0"
+    state: present
+
+- name: Set user coordinates as default map
+  lineinfile:
+    dest: /usr/local/nagios/etc/cgi.cfg
+    regexp: "^default_statusmap_layout"
+    line: "default_statusmap_layout=0"
     state: present
 
 - name: Install init script
@@ -145,6 +161,35 @@
     owner: nagios
     group: nagios
     mode: 0755
+
+- name: Upload distribution logo icons
+  copy:
+    src: "{{ item }}"
+    dest: /usr/local/nagios/share/images/logos/
+    owner: nagios
+    group: nagios
+    mode: 0644
+  with_items:
+    - CentOS.png
+    - Debian.png
+    - Ubuntu.png
+    - Nagios.png
+    - CentOS.gd2
+    - Debian.gd2
+    - Ubuntu.gd2
+    - Nagios.gd2
+    - database.gd2
+    - drupal.gd2
+    - gitlab.gd2
+    - haproxy.gd2
+    - jenkins.gd2
+    - mysql.gd2
+    - nfs.gd2
+    - postgresql.gd2
+    - redmine.gd2
+    - forge.gd2
+    - openstack.png
+    - openstack.gd2
 
 - name: Ensure permissions on check_nrpe plugin
   file:
