@@ -60,6 +60,7 @@ def getTimedResponse(baseurl, user, password, headers, debug=False):
     start_time = time.time()
     response = br.submit()
     d = time.time() - start_time
+    br.follow_link(url='/logout')
     return { 'time': d, 'response': response }
 
 def constructBaseURL(host, uri, port, ssl):
