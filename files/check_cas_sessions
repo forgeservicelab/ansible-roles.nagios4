@@ -29,10 +29,10 @@ def check_sessions(args):
 	try:
 		connection = mdb.connect(args['--host'], args['--username'], args['--password'], args['--database'])
 		cursor = connection.cursor()
-		cursor.execute('select u.username, t.updated_at from casino_ticket_granting_tickets t INNER JOIN casino_users u where t.user_id = u.id')
+		cursor.execute('select u.username, t.updated_at, t.long_term from casino_ticket_granting_tickets t INNER JOIN casino_users u where t.user_id = u.id')
 		rows = cursor.fetchall()
 
-		late_sessions = filter(lambda x: datetime.datetime.now() - x[1] > datetime.timedelta(days=1), rows)
+		late_sessions = filter(lambda x: datetime.datetime.now() - x[1] > datetime.timedelta(days=1), filter(lambda x: not x[2], rows))
 		multi_sessions = ()
 		for i in rows:
 		    if [x[0] for x in rows].count(i[0]) > 5:
