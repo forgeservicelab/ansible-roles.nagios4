@@ -5,7 +5,9 @@ build_tools:
   - libxslt1-dev
 ssl_libs: libssl-dev
 ldap_libs: libldap2-dev
-mysql_libs: libmysqlclient-dev
+mysql_libs:
+  - libmysqlclient-dev
+  - python-mysqldb
 apache: apache2
 gd: libgd2-xpm
 gd_dev: libgd2-xpm-dev

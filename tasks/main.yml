@@ -80,6 +80,7 @@
     - check_postgresql
     - check_postgresql.py
     - check_openstack.py
+    - check_cas_sessions
     - docopt.py
 
 - name: Find the ssl library for nrpe configuration

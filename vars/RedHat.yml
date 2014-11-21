@@ -9,7 +9,9 @@ build_tools:
   - libxslt-devel
 ssl_libs: openssl-devel
 ldap_libs: openldap-devel
-mysql_libs: mysql-devel
+mysql_libs: 
+  - mysql-devel
+  - MySQL-python
 apache: httpd
 gd: gd
 gd_dev: gd-devel
