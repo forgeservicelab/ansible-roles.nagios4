@@ -38,7 +38,7 @@
     dest: /tmp/{{ item.file }}
   with_items:
     - { base: "https://www.nagios-plugins.org/download/", file: "nagios-plugins-{{ nagios_plugins_version }}.tar.gz" }
-    - { base: "http://prdownloads.sourceforge.net/sourceforge/nagios/", file: "nrpe-{{ nrpe_version }}.tar.gz" }
+    - { base: "http://ufpr.dl.sourceforge.net/project/nagios/nrpe-2.x/nrpe-{{ nrpe_version }}/", file: "nrpe-{{ nrpe_version }}.tar.gz" }
 
 - name: Unpack nagios nrpe and plugins
   unarchive:
