@@ -1,3 +1,0 @@
-[submodule "files/nagios-plugins"]
-	path = files/nagios-plugins
-	url = https://github.com/justintime/nagios-plugins.git
