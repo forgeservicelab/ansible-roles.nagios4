@@ -30,7 +30,7 @@ CRITICAL = 2
 UNKNOWN = 3
 
 def check_sessions(args):
-	try:
+    try:
         if args['--mysql']:
 		    connection = mdb.connect(args['--host'], args['--username'], args['--password'], args['--database'])
         else:
@@ -63,6 +63,9 @@ def check_sessions(args):
 
 
 	except mdb.Error, e:
+		print "UNKNOWN: The check returned the following Error %d: %s" % (e.args[0], e.args[1])
+		exit(UNKNOWN)
+	except sqlite3.Error, e:
 		print "UNKNOWN: The check returned the following Error %d: %s" % (e.args[0], e.args[1])
 		exit(UNKNOWN)
 
