@@ -5,21 +5,23 @@
 Usage:
     check_cas_sessions (-h | --help)
     check_cas_sessions -S -D <database> -d <duration> -s <sessions>
-    check_cas_sessions -M -H <hostname_or_ip_address> [-p <port>] [-D <database>] -U <username> -P <password> -d <duration> -s <sessions>
+    check_cas_sessions (-M | -G) -H <hostname_or_ip_address> -p <port> [-D <database>] -U <username> -P <password> -d <duration> -s <sessions>
 
 Options:
     -h --help                               Show this screen and exit.
     -d --duration <duration>                Duration threshold for stale sessions in days.
     -s --sessions <sessions>                Maximum number of open sessions per user.
     -M --mysql                              Connect to a MySQL server
+    -G --postgresql                         Connect to a PostgreSQL server
     -S --sqlite                             Connecto to a SQLite server
     -H --host <hostname_or_ip_address>      FQDN ir IP address of the database host to connect to.
-    -p --port <port>                        Port where the database server is listening [default: 3306].
+    -p --port <port>                        Port where the database server is listening.
     -D --database <database>                Name or Filename if sqlite of the database to connect to [default: casino].
     -U --username <username>                Name of the user with which to connect to the database.
     -P --password <password>                Password of the user with which to connect to the database.
 """
 from docopt import docopt, DocoptExit
+import psycopg2 as psql
 import MySQLdb as mdb
 import sqlite3
 import datetime
@@ -30,13 +32,19 @@ CRITICAL = 2
 UNKNOWN = 3
 
 def check_sessions(args):
+    dbs = {
+        '--postgresql': psql.connect(args['--host'], args['--username'], args['--password'], args['--database']),
+        '--mysql': mdb.connect(args['--host'], args['--username'], args['--password'], args['--database']),
+        '--sqlite': sqlite3.connect(args['--database'])
+    }
     try:
-        if args['--mysql']:
-            connection = mdb.connect(args['--host'], args['--username'], args['--password'], args['--database'])
-        else:
-            connection = sqlite3.connect(args['--database'])
+        # if args['--mysql']:
+        #     connection = mdb.connect(args['--host'], args['--username'], args['--password'], args['--database'])
+        # else:
+        #     connection = sqlite3.connect(args['--database'])
+        connection = dbs[filter(lambda arg: args[arg], {k: args[k] for k in ('--postgresql', '--mysql', '--sqlite')})[0]]
         cursor = connection.cursor()
-        cursor.execute('select u.username, t.updated_at, t.long_term from casino_ticket_granting_tickets t INNER JOIN casino_users u where t.user_id = u.id')
+        cursor.execute('select u.username, t.updated_at, t.long_term from casino_ticket_granting_tickets t INNER JOIN casino_users u ON t.user_id = u.id')
         rows = cursor.fetchall()
 
         late_sessions = filter(lambda x: datetime.datetime.utcnow() - x[1] > datetime.timedelta(days=1), filter(lambda x: not x[2], rows))
