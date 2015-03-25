@@ -33,15 +33,11 @@ UNKNOWN = 3
 
 def check_sessions(args):
     dbs = {
-        '--postgresql': psql.connect(args['--host'], args['--username'], args['--password'], args['--database']),
-        '--mysql': mdb.connect(args['--host'], args['--username'], args['--password'], args['--database']),
-        '--sqlite': sqlite3.connect(args['--database'])
+        '--postgresql': psql.connect(host=args['--host'], user=args['--username'], password=args['--password'], database=args['--database']) if args['--postgresql'] else None,
+        '--mysql': mdb.connect(args['--host'], args['--username'], args['--password'], args['--database']) if args['--mysql'] else None,
+        '--sqlite': sqlite3.connect(args['--database']) if args['--sqlite'] else None,
     }
     try:
-        # if args['--mysql']:
-        #     connection = mdb.connect(args['--host'], args['--username'], args['--password'], args['--database'])
-        # else:
-        #     connection = sqlite3.connect(args['--database'])
         connection = dbs[filter(lambda arg: args[arg], {k: args[k] for k in ('--postgresql', '--mysql', '--sqlite')})[0]]
         cursor = connection.cursor()
         cursor.execute('select u.username, t.updated_at, t.long_term from casino_ticket_granting_tickets t INNER JOIN casino_users u ON t.user_id = u.id')
