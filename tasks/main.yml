@@ -82,6 +82,7 @@
     - check_openstack.py
     - check_cas_sessions
     - docopt.py
+    - check_yum
 
 - name: Find the ssl library for nrpe configuration
   shell: find / -name libssl.so
